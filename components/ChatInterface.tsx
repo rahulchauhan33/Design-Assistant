@@ -6,6 +6,8 @@ import { PERSONALITIES } from '../constants';
 interface ChatInterfaceProps {
   messages: ChatMessage[];
   isLoading: boolean;
+  onViewImage: (src: string) => void;
+  onSuggestionClick: (suggestion: string) => void;
 }
 
 const LoadingIndicator: React.FC = () => {
@@ -23,7 +25,7 @@ const LoadingIndicator: React.FC = () => {
 };
 
 
-const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, isLoading }) => {
+const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, isLoading, onViewImage, onSuggestionClick }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -39,7 +41,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, isLoading }) =>
         if (msg.role === 'assistant' && msg.content === '...') {
           return null;
         }
-        return <Message key={msg.id} message={msg} />;
+        return <Message key={msg.id} message={msg} onViewImage={onViewImage} onSuggestionClick={onSuggestionClick} isLoading={isLoading} />;
       })}
       {isLoading && <LoadingIndicator />}
     </div>

@@ -18,4 +18,11 @@ export interface PersonalityData {
   description: string;
   systemInstruction: string;
   icon: React.ComponentType<{ className?: string }>;
+  suggestions: string[];
+}
+
+export interface TourStep {
+  targetId: string;
+  title: string;
+  content: string;
 }

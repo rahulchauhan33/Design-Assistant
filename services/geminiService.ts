@@ -1,5 +1,4 @@
-
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, HarmCategory, HarmBlockThreshold } from "@google/genai";
 import type { PersonalityData } from '../types';
 
 if (!process.env.API_KEY) {
@@ -39,16 +38,28 @@ export async function getDesignFeedback(
       contents: { parts: parts },
       config: {
         systemInstruction: personalityData.systemInstruction,
+        // Fix: `safetySettings` must be nested inside the `config` object.
+        safetySettings: [
+          {
+            category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+          }
+        ]
       },
     });
+
+    if (response.promptFeedback?.blockReason) {
+      throw new Error("The uploaded image could not be processed due to content safety policies. Please upload a different image.");
+    }
     
     return response.text;
 
   } catch (error) {
     console.error("Error calling Gemini API:", error);
     if (error instanceof Error) {
-        return `Failed to get feedback from AI: ${error.message}`;
+        // Re-throw the specific error message to be caught by the UI
+        throw error;
     }
-    return "An unexpected error occurred while fetching feedback from the AI.";
+    throw new Error("An unexpected error occurred while fetching feedback from the AI.");
   }
 }

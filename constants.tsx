@@ -1,5 +1,5 @@
 
-import type { PersonalityData } from './types';
+import type { PersonalityData, TourStep } from './types';
 import { Personality } from './types';
 import { UxEagleIcon } from './components/icons/UxEagleIcon';
 import { PmOwlIcon } from './components/icons/PmOwlIcon';
@@ -20,7 +20,13 @@ When an image (UI screenshot, Figma export, etc.) is provided, critique layout, 
 Always structure your response with two main sections in markdown:
 1.  **Quick Wins:** For immediate, easy-to-implement suggestions.
 2.  **Deeper Improvements:** For more substantial, long-term ideas.
-Maintain a helpful and encouraging tone.`
+Maintain a helpful and encouraging tone.
+After your analysis, always suggest 2-3 follow-up questions to guide the conversation. Format each question as a separate markdown blockquote.`,
+    suggestions: [
+      'Critique the user flow for this checkout page.',
+      'Is this color palette accessible?',
+      'How can I improve the information hierarchy here?',
+    ]
   },
   {
     id: Personality.PRODUCT_PM,
@@ -36,7 +42,13 @@ When an image (UI screenshot, Figma export, etc.) is provided, critique layout, 
 Always structure your response with two main sections in markdown:
 1.  **Quick Wins:** For immediate, easy-to-implement suggestions.
 2.  **Deeper Improvements:** For more substantial, long-term ideas.
-Maintain a helpful and encouraging tone.`
+Maintain a helpful and encouraging tone.
+After your analysis, always suggest 2-3 follow-up questions to guide the conversation. Format each question as a separate markdown blockquote.`,
+    suggestions: [
+      'Does this feature align with our business goals?',
+      'What\'s the MVP for this design?',
+      'Analyze the trade-offs of this UI decision.',
+    ]
   },
   {
     id: Personality.ENGINEER,
@@ -52,6 +64,40 @@ When an image (UI screenshot, Figma export, etc.) is provided, critique layout, 
 Always structure your response with two main sections in markdown:
 1.  **Quick Wins:** For immediate, easy-to-implement suggestions.
 2.  **Deeper Improvements:** For more substantial, long-term ideas.
-Maintain a helpful and encouraging tone.`
+Maintain a helpful and encouraging tone.
+After your analysis, always suggest 2-3 follow-up questions to guide the conversation. Format each question as a separate markdown blockquote.`,
+    suggestions: [
+        'How complex would this be to build in React?',
+        'Are there any performance concerns with this design?',
+        'Suggest a component breakdown for this screen.',
+    ]
   }
+];
+
+export const TOUR_STEPS: TourStep[] = [
+    {
+        targetId: 'personality-selector',
+        title: '1. Select a Personality',
+        content: 'Choose an AI persona. Each one provides feedback from a different perspective: UX, Product, or Engineering.',
+    },
+    {
+        targetId: 'image-upload-button',
+        title: '2. Upload Your Design',
+        content: 'Click here to upload a UI screenshot or design file. The assistant works best with visual context.',
+    },
+    {
+        targetId: 'prompt-input',
+        title: '3. Ask for Feedback',
+        content: 'Type your question here. You can ask for a general review or focus on specific elements of your design.',
+    },
+    {
+        targetId: 'send-button',
+        title: '4. Get Instant Feedback',
+        content: 'Click the send button to receive a structured design critique from your selected AI assistant.',
+    },
+    {
+        targetId: 'theme-toggle',
+        title: '5. Toggle Light/Dark Mode',
+        content: 'Switch between light and dark themes for your viewing comfort.',
+    },
 ];

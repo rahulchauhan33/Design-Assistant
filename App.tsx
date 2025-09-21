@@ -1,12 +1,15 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import type { ChatMessage, PersonalityData } from './types';
 import { Personality } from './types';
-import { PERSONALITIES } from './constants';
+import { PERSONALITIES, TOUR_STEPS } from './constants';
 import { getDesignFeedback } from './services/geminiService';
 import PersonalitySelector from './components/PersonalitySelector';
 import ChatInterface from './components/ChatInterface';
 import InputBar from './components/InputBar';
 import ThemeToggle from './components/ThemeToggle';
+import ImageModal from './components/ImageModal';
+import OnboardingTour from './components/OnboardingTour';
+import SuggestionPrompts from './components/SuggestionPrompts';
 
 const App: React.FC = () => {
   const [activePersonality, setActivePersonality] = useState<Personality>(Personality.UX_COACH);
@@ -15,7 +18,6 @@ const App: React.FC = () => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // Ensure we load a non-empty array from storage
         if (Array.isArray(parsed) && parsed.length > 0) {
             return parsed;
         }
@@ -23,7 +25,6 @@ const App: React.FC = () => {
         console.error('Failed to parse chat history from localStorage', e);
       }
     }
-    // Return default message if nothing in storage, it's empty, or parsing fails
     return [{
       id: 'init',
       role: 'assistant',
@@ -36,6 +37,16 @@ const App: React.FC = () => {
     if (savedTheme) return savedTheme;
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   });
+  const [viewingImage, setViewingImage] = useState<string | null>(null);
+  const [isTourActive, setIsTourActive] = useState(false);
+  const [tourStep, setTourStep] = useState(0);
+
+  useEffect(() => {
+    const hasCompletedTour = localStorage.getItem('hasCompletedTour');
+    if (!hasCompletedTour) {
+      setIsTourActive(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -46,10 +57,14 @@ const App: React.FC = () => {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  // Save chat history to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('chatHistory', JSON.stringify(messages));
   }, [messages]);
+
+  const handleEndTour = () => {
+    setIsTourActive(false);
+    localStorage.setItem('hasCompletedTour', 'true');
+  };
 
   const toggleTheme = () => {
     setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
@@ -88,11 +103,12 @@ const App: React.FC = () => {
       };
       setMessages(prev => prev.map(msg => msg.id === assistantMessageId ? assistantMessage : msg));
     } catch (e) {
+      console.error('Error during message handling:', e);
       const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
       const systemMessage: ChatMessage = {
         id: assistantMessageId,
         role: 'system',
-        content: `Error: ${errorMessage}`
+        content: `I'm sorry, I ran into a problem and couldn't complete your request. Please try again.\n\n**Error Details:**\n\`\`\`\n${errorMessage}\n\`\`\``
       };
       setMessages(prev => prev.map(msg => msg.id === assistantMessageId ? systemMessage : msg));
     } finally {
@@ -100,8 +116,22 @@ const App: React.FC = () => {
     }
   }, [activePersonalityData]);
   
+  const handleSuggestionClick = (suggestion: string) => {
+    handleSendMessage(suggestion, null);
+  };
+
+  const activeTabId = `personality-tab-${activePersonality}`;
+
   return (
     <div className="flex flex-col h-screen bg-white dark:bg-[#0D0D0D] text-gray-800 dark:text-gray-200 font-sans antialiased">
+       {isTourActive && (
+          <OnboardingTour
+            steps={TOUR_STEPS}
+            currentStep={tourStep}
+            setCurrentStep={setTourStep}
+            onFinish={handleEndTour}
+          />
+        )}
        <main className="flex-1 flex flex-col items-center p-4 w-full max-w-4xl mx-auto">
         <header className="w-full py-8 text-center relative">
           <div className="absolute top-1/2 -translate-y-1/2 right-0">
@@ -117,16 +147,34 @@ const App: React.FC = () => {
         <PersonalitySelector
           activePersonality={activePersonality}
           onSelectPersonality={setActivePersonality}
+          isLoading={isLoading}
         />
 
-        <div className="w-full flex-1 flex flex-col my-6 bg-gray-50 dark:bg-black rounded-xl border border-gray-200 dark:border-zinc-800 shadow-lg dark:shadow-2xl dark:shadow-zinc-900/50 overflow-hidden">
-          <ChatInterface messages={messages} isLoading={isLoading} />
+        <div 
+            id="chat-panel"
+            role="tabpanel"
+            aria-labelledby={activeTabId}
+            className="w-full flex-1 flex flex-col my-6 bg-gray-50 dark:bg-black rounded-xl border border-gray-200 dark:border-zinc-800 shadow-lg dark:shadow-2xl dark:shadow-zinc-900/50 overflow-hidden"
+        >
+          <ChatInterface 
+            messages={messages} 
+            isLoading={isLoading}
+            onViewImage={setViewingImage}
+            onSuggestionClick={handleSuggestionClick}
+          />
+          {messages.length === 1 && !isLoading && (
+            <SuggestionPrompts 
+              suggestions={activePersonalityData.suggestions}
+              onSuggestionClick={handleSuggestionClick}
+            />
+          )}
           <InputBar onSendMessage={handleSendMessage} isLoading={isLoading} />
         </div>
       </main>
       <footer className="text-center p-4 text-sm text-zinc-600 dark:text-zinc-500">
-        Designed by <a href="https://www.linkedin.com/in/rahul-chauhan-a022ab79/" target="_blank" rel="noopener noreferrer" className="underline hover:text-[#ABF62D] transition-colors">Rahul Chauhan</a>
+        Designed by <a href="https://www.linkedin.com/in/rahul-chauhan-a022ab79/" target="_blank" rel="noopener noreferrer" className="underline hover:text-[#69961a] dark:hover:text-[#ABF62D] transition-colors">Rahul Chauhan</a>
       </footer>
+      <ImageModal src={viewingImage} onClose={() => setViewingImage(null)} />
     </div>
   );
 };
