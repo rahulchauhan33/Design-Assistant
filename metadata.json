@@ -1,0 +1,5 @@
+{
+  "name": "Claude-style Design Assistant",
+  "description": "An AI-powered design assistant with three distinct personalities (UX Coach, Product PM, Engineer) to provide structured feedback on UI screenshots and design questions.",
+  "requestFramePermissions": []
+}
