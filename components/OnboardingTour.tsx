@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useLayoutEffect, useCallback } from 'react';
 import type { TourStep } from '../types';
 
 interface OnboardingTourProps {
@@ -15,15 +15,15 @@ const OnboardingTour: React.FC<OnboardingTourProps> = ({ steps, currentStep, set
 
   const step = steps[currentStep];
 
-  useLayoutEffect(() => {
+  // Memoize the position update logic. It only changes when the step changes.
+  const updatePosition = useCallback(() => {
     if (!step) return;
 
     const element = document.getElementById(step.targetId);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
       const rect = element.getBoundingClientRect();
       const padding = 10;
-      
+
       setHighlightStyle({
         width: `${rect.width + padding}px`,
         height: `${rect.height + padding}px`,
@@ -32,7 +32,7 @@ const OnboardingTour: React.FC<OnboardingTourProps> = ({ steps, currentStep, set
         boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.7)',
         borderRadius: '8px',
       });
-      
+
       // Position popover below the element, centered
       setPopoverStyle({
         top: `${rect.bottom + padding}px`,
@@ -40,6 +40,29 @@ const OnboardingTour: React.FC<OnboardingTourProps> = ({ steps, currentStep, set
       });
     }
   }, [step]);
+
+  // Effect for scrolling the element into view and setting up listeners
+  useLayoutEffect(() => {
+    if (step) {
+      const element = document.getElementById(step.targetId);
+      element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      
+      // Delay initial positioning to allow for smooth scroll to complete.
+      const timeoutId = setTimeout(updatePosition, 300);
+
+      window.addEventListener('resize', updatePosition);
+      // Use capture: true for scroll events to catch them early.
+      window.addEventListener('scroll', updatePosition, true);
+
+      // Cleanup function to remove listeners.
+      return () => {
+        clearTimeout(timeoutId);
+        window.removeEventListener('resize', updatePosition);
+        window.removeEventListener('scroll', updatePosition, true);
+      };
+    }
+  }, [step, updatePosition]);
+
 
   if (!step) return null;
 
@@ -61,7 +84,7 @@ const OnboardingTour: React.FC<OnboardingTourProps> = ({ steps, currentStep, set
     <div className="fixed inset-0 z-[100]">
       <div className="absolute transition-all duration-300 ease-in-out" style={highlightStyle} />
       <div 
-        className="absolute bg-[#1A1A1A] text-white p-5 rounded-lg shadow-2xl w-80 transform -translate-x-1/2 animate-fadeIn" 
+        className="absolute bg-[#1A1A1A] text-white p-5 rounded-lg shadow-2xl w-[90vw] max-w-sm transform -translate-x-1/2 animate-fadeIn" 
         style={popoverStyle}
         role="dialog"
         aria-labelledby="tour-title"

@@ -42,7 +42,7 @@ const PersonalitySelector: React.FC<PersonalitySelectorProps> = ({ activePersona
   };
 
   return (
-    <div id="personality-selector" className="grid grid-cols-3 gap-2 md:gap-4 w-full" role="tablist" aria-label="Select a personality">
+    <div id="personality-selector" className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 w-full" role="tablist" aria-label="Select a personality">
       {PERSONALITIES.map((p, index) => {
         const isActive = activePersonality === p.id;
         const tabId = `personality-tab-${p.id}`;

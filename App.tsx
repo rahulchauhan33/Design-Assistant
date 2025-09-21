@@ -133,15 +133,14 @@ const App: React.FC = () => {
           />
         )}
        <main className="flex-1 flex flex-col items-center p-4 w-full max-w-4xl mx-auto">
-        <header className="w-full py-8 text-center relative">
-          <div className="absolute top-1/2 -translate-y-1/2 right-0">
-            <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
+        <header className="w-full py-8 flex justify-between items-center">
+          <div className="text-center sm:text-left">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Design Assistant
+            </h1>
+            <p className="text-gray-600 dark:text-gray-500">Instant feedback from your AI design team.</p>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-            Design Assistant
-          </h1>
-
-          <p className="text-gray-600 dark:text-gray-500">Instant feedback from your AI design team.</p>
+          <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
         </header>
         
         <PersonalitySelector

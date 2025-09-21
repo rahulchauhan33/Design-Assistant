@@ -80,7 +80,7 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, isLoading }) => {
             aria-label="Upload an image"
             tabIndex={isLoading ? -1 : 0}
             onKeyDown={handleLabelKeyDown}
-            className={`cursor-pointer p-2 rounded-full hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-[#1A1A1A] focus:ring-[#ABF62D] ${isLoading ? 'cursor-not-allowed opacity-50' : ''}`}>
+            className={`cursor-pointer p-3 rounded-full hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-[#1A1A1A] focus:ring-[#ABF62D] ${isLoading ? 'cursor-not-allowed opacity-50' : ''}`}>
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
           </label>
           <input
@@ -96,7 +96,7 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, isLoading }) => {
             id="send-button"
             type="submit" 
             disabled={isLoading || (!text && !image)} 
-            className="p-2 rounded-full bg-[#ABF62D] disabled:bg-zinc-300 dark:disabled:bg-zinc-700 disabled:cursor-not-allowed hover:scale-110 transition-transform transform focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-[#1A1A1A] focus:ring-[#ABF62D]"
+            className="p-3 rounded-full bg-[#ABF62D] disabled:bg-zinc-300 dark:disabled:bg-zinc-700 disabled:cursor-not-allowed hover:scale-110 transition-transform transform focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-[#1A1A1A] focus:ring-[#ABF62D]"
             aria-label="Send message"
             >
             {isLoading ? (

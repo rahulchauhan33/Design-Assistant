@@ -63,8 +63,12 @@ const Message: React.FC<MessageProps> = ({ message, onViewImage, onSuggestionCli
           </button>
         )}
         {image && (
-            <button onClick={() => onViewImage(image)} className="block w-full" aria-label="View image full screen">
-                 <img src={image} alt="User upload" className="rounded-md mb-3 max-h-64 w-full object-cover border border-gray-300 dark:border-zinc-700 transition-transform duration-200 ease-in-out hover:scale-105" />
+            <button
+              onClick={() => onViewImage(image)}
+              className="block w-full rounded-md mb-3 bg-gray-200 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 overflow-hidden focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-[#1C1C1C] focus:ring-[#ABF62D]"
+              aria-label="View image full screen"
+            >
+                 <img src={image} alt="User upload" className="max-h-64 w-full object-contain transition-transform duration-200 ease-in-out hover:scale-105" />
             </button>
         )}
         <ReactMarkdown
@@ -106,7 +110,7 @@ const Message: React.FC<MessageProps> = ({ message, onViewImage, onSuggestionCli
                   <button
                     onClick={() => onSuggestionClick(suggestionText)}
                     disabled={isLoading}
-                    className="block w-full text-left px-3 py-2 my-1 text-sm font-medium text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-[#1f1f1f] border border-gray-200 dark:border-zinc-700 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-800 hover:border-gray-300 dark:hover:border-zinc-600 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-[#161616] focus:ring-[#ABF62D] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="block w-full text-left px-4 py-2 my-1 text-sm font-medium text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-[#1f1f1f] border border-gray-200 dark:border-zinc-700 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-800 hover:border-gray-300 dark:hover:border-zinc-600 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-[#161616] focus:ring-[#ABF62D] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {suggestionText}
                   </button>
