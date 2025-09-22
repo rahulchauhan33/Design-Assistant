@@ -1,5 +1,5 @@
 
-import type { PersonalityData, TourStep } from './types';
+import type { PersonalityData } from './types';
 import { Personality } from './types';
 import { UxEagleIcon } from './components/icons/UxEagleIcon';
 import { PmOwlIcon } from './components/icons/PmOwlIcon';
@@ -72,32 +72,4 @@ After your analysis, always suggest 2-3 follow-up questions to guide the convers
         'Suggest a component breakdown for this screen.',
     ]
   }
-];
-
-export const TOUR_STEPS: TourStep[] = [
-    {
-        targetId: 'personality-selector',
-        title: '1. Select a Personality',
-        content: 'Choose an AI persona. Each one provides feedback from a different perspective: UX, Product, or Engineering.',
-    },
-    {
-        targetId: 'image-upload-button',
-        title: '2. Upload Your Design',
-        content: 'Click here to upload a UI screenshot or design file. The assistant works best with visual context.',
-    },
-    {
-        targetId: 'prompt-input',
-        title: '3. Ask for Feedback',
-        content: 'Type your question here. You can ask for a general review or focus on specific elements of your design.',
-    },
-    {
-        targetId: 'send-button',
-        title: '4. Get Instant Feedback',
-        content: 'Click the send button to receive a structured design critique from your selected AI assistant.',
-    },
-    {
-        targetId: 'theme-toggle',
-        title: '5. Toggle Light/Dark Mode',
-        content: 'Switch between light and dark themes for your viewing comfort.',
-    },
 ];

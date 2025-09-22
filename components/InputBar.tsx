@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useCallback } from 'react';
 import { SpinnerIcon } from './icons/SpinnerIcon';
 
@@ -74,7 +75,6 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, isLoading }) => {
         <form onSubmit={handleSubmit} className="flex items-center gap-2 bg-gray-100 dark:bg-[#1A1A1A] border border-gray-300 dark:border-zinc-700 rounded-full p-2 focus-within:ring-2 focus-within:ring-[#ABF62D] transition-all duration-300">
           <input type="file" ref={fileInputRef} accept="image/*" onChange={handleImageChange} className="hidden" id="file-upload" disabled={isLoading} />
           <label 
-            id="image-upload-button"
             htmlFor="file-upload" 
             role="button"
             aria-label="Upload an image"
@@ -93,7 +93,6 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, isLoading }) => {
             disabled={isLoading}
           />
           <button 
-            id="send-button"
             type="submit" 
             disabled={isLoading || (!text && !image)} 
             className="p-3 rounded-full bg-[#ABF62D] disabled:bg-zinc-300 dark:disabled:bg-zinc-700 disabled:cursor-not-allowed hover:scale-110 transition-transform transform focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-[#1A1A1A] focus:ring-[#ABF62D]"

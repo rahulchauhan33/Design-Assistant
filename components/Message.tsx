@@ -1,9 +1,9 @@
+
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { ChatMessage } from '../types';
 import { UserIcon } from './icons/UserIcon';
-import { PERSONALITIES } from '../constants';
 import { ClipboardIcon } from './icons/ClipboardIcon';
 import { CheckIcon } from './icons/CheckIcon';
 
@@ -12,9 +12,10 @@ interface MessageProps {
   onViewImage: (src: string) => void;
   onSuggestionClick: (suggestion: string) => void;
   isLoading: boolean;
+  assistantIcon: React.ComponentType<{ className?: string }>;
 }
 
-const Message: React.FC<MessageProps> = ({ message, onViewImage, onSuggestionClick, isLoading }) => {
+const Message: React.FC<MessageProps> = ({ message, onViewImage, onSuggestionClick, isLoading, assistantIcon: AssistantIcon }) => {
   const { role, content, image } = message;
   const [isCopied, setIsCopied] = useState(false);
 
@@ -22,8 +23,6 @@ const Message: React.FC<MessageProps> = ({ message, onViewImage, onSuggestionCli
   const isSystem = role === 'system';
   const isAssistant = role === 'assistant';
 
-  const AssistantIcon = PERSONALITIES[0].icon;
-  
   const handleCopy = () => {
     if (isCopied || !content) return;
     navigator.clipboard.writeText(content).then(() => {

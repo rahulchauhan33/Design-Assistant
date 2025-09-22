@@ -1,36 +1,32 @@
+
 import React, { useState, useCallback, useEffect } from 'react';
-import type { ChatMessage, PersonalityData } from './types';
+import type { ChatMessage, PersonalityData, SavedChat } from './types';
 import { Personality } from './types';
-import { PERSONALITIES, TOUR_STEPS } from './constants';
+import { PERSONALITIES } from './constants';
 import { getDesignFeedback } from './services/geminiService';
 import PersonalitySelector from './components/PersonalitySelector';
 import ChatInterface from './components/ChatInterface';
 import InputBar from './components/InputBar';
 import ThemeToggle from './components/ThemeToggle';
 import ImageModal from './components/ImageModal';
-import OnboardingTour from './components/OnboardingTour';
 import SuggestionPrompts from './components/SuggestionPrompts';
+import { PlusIcon } from './components/icons/PlusIcon';
+import { SaveIcon } from './components/icons/SaveIcon';
+import { HistoryIcon } from './components/icons/HistoryIcon';
+import { CheckIcon } from './components/icons/CheckIcon';
+import ChatHistoryModal from './components/ChatHistoryModal';
+
+const SAVED_CHATS_KEY = 'design-assistant-saved-chats';
+const INITIAL_MESSAGE: ChatMessage = {
+  id: 'init',
+  role: 'assistant',
+  content: 'Hello! I am your Design Assistant. Please select a personality, upload a design screenshot, and ask for feedback.'
+};
+
 
 const App: React.FC = () => {
   const [activePersonality, setActivePersonality] = useState<Personality>(Personality.UX_COACH);
-  const [messages, setMessages] = useState<ChatMessage[]>(() => {
-    const saved = localStorage.getItem('chatHistory');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed;
-        }
-      } catch (e) {
-        console.error('Failed to parse chat history from localStorage', e);
-      }
-    }
-    return [{
-      id: 'init',
-      role: 'assistant',
-      content: 'Hello! I am your Design Assistant. Please select a personality, upload a design screenshot, and ask for feedback.'
-    }];
-  });
+  const [messages, setMessages] = useState<ChatMessage[]>([INITIAL_MESSAGE]);
   const [isLoading, setIsLoading] = useState(false);
   const [theme, setTheme] = useState(() => {
     const savedTheme = localStorage.getItem('theme');
@@ -38,13 +34,22 @@ const App: React.FC = () => {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   });
   const [viewingImage, setViewingImage] = useState<string | null>(null);
-  const [isTourActive, setIsTourActive] = useState(false);
-  const [tourStep, setTourStep] = useState(0);
+
+  // State for chat history management
+  const [savedChats, setSavedChats] = useState<SavedChat[]>([]);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saved'>('idle');
+
 
   useEffect(() => {
-    const hasCompletedTour = localStorage.getItem('hasCompletedTour');
-    if (!hasCompletedTour) {
-      setIsTourActive(true);
+    // Load saved chats from localStorage on initial render
+    try {
+        const storedChats = localStorage.getItem(SAVED_CHATS_KEY);
+        if (storedChats) {
+            setSavedChats(JSON.parse(storedChats));
+        }
+    } catch (e) {
+        console.error("Failed to load saved chats from localStorage", e);
     }
   }, []);
 
@@ -56,15 +61,16 @@ const App: React.FC = () => {
     }
     localStorage.setItem('theme', theme);
   }, [theme]);
-
+  
+  // Effect to save chats to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('chatHistory', JSON.stringify(messages));
-  }, [messages]);
+    try {
+        localStorage.setItem(SAVED_CHATS_KEY, JSON.stringify(savedChats));
+    } catch (e) {
+        console.error("Failed to save chats to localStorage", e);
+    }
+  }, [savedChats]);
 
-  const handleEndTour = () => {
-    setIsTourActive(false);
-    localStorage.setItem('hasCompletedTour', 'true');
-  };
 
   const toggleTheme = () => {
     setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
@@ -83,7 +89,13 @@ const App: React.FC = () => {
       content: prompt,
       image: image?.data
     };
-    setMessages(prev => [...prev, userMessage]);
+    
+    // If it's the first user message, replace the initial message
+    const newMessages = messages.length === 1 && messages[0].id === 'init'
+        ? [userMessage]
+        : [...messages, userMessage];
+
+    setMessages(newMessages);
 
     const assistantMessageId = (Date.now() + 1).toString();
     const assistantMessagePlaceholder: ChatMessage = {
@@ -114,33 +126,87 @@ const App: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [activePersonalityData]);
+  }, [activePersonalityData, messages]);
   
   const handleSuggestionClick = (suggestion: string) => {
+    const inputBar = document.getElementById('prompt-input') as HTMLInputElement | null;
+    if (inputBar) {
+        inputBar.value = suggestion;
+        inputBar.focus();
+    }
+    // For this case, we'll just send it directly.
     handleSendMessage(suggestion, null);
   };
 
+  const handleNewChat = () => {
+    setMessages([INITIAL_MESSAGE]);
+  }
+
+  const handleSaveChat = () => {
+    const newSavedChat: SavedChat = {
+        id: Date.now().toString(),
+        timestamp: Date.now(),
+        messages,
+        personality: activePersonality
+    };
+    setSavedChats(prev => [newSavedChat, ...prev]);
+    setSaveStatus('saved');
+    setTimeout(() => setSaveStatus('idle'), 2000);
+  };
+
+  const handleLoadChat = (chatId: string) => {
+    const chatToLoad = savedChats.find(c => c.id === chatId);
+    if (chatToLoad) {
+        setMessages(chatToLoad.messages);
+        setActivePersonality(chatToLoad.personality);
+        setIsHistoryOpen(false);
+    }
+  };
+
+  const handleDeleteChat = (chatId: string) => {
+    setSavedChats(prev => prev.filter(c => c.id !== chatId));
+  };
+
+
   const activeTabId = `personality-tab-${activePersonality}`;
+  const isPristine = messages.length <= 1 && messages[0].id === 'init';
 
   return (
     <div className="flex flex-col h-screen bg-white dark:bg-[#0D0D0D] text-gray-800 dark:text-gray-200 font-sans antialiased">
-       {isTourActive && (
-          <OnboardingTour
-            steps={TOUR_STEPS}
-            currentStep={tourStep}
-            setCurrentStep={setTourStep}
-            onFinish={handleEndTour}
-          />
-        )}
-       <main className="flex-1 flex flex-col items-center p-4 w-full max-w-4xl mx-auto">
-        <header className="w-full py-8 flex justify-between items-center">
+       <main className="flex-1 flex flex-col items-center p-2 sm:p-4 w-full max-w-4xl mx-auto">
+        <header className="w-full py-4 sm:py-8 flex flex-col gap-4 sm:flex-row sm:justify-between items-center">
           <div className="text-center sm:text-left">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
               Design Assistant
             </h1>
             <p className="text-gray-600 dark:text-gray-500">Instant feedback from your AI design team.</p>
           </div>
-          <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
+           <div className="flex items-center gap-2">
+            <button
+                onClick={handleNewChat}
+                disabled={isPristine}
+                aria-label="New Chat"
+                className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-[#0D0D0D] focus:ring-[#ABF62D] transition-all"
+            >
+                <PlusIcon className="h-6 w-6" />
+            </button>
+            <button
+                onClick={handleSaveChat}
+                disabled={isPristine}
+                aria-label="Save Chat"
+                className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-[#0D0D0D] focus:ring-[#ABF62D] transition-all"
+            >
+                {saveStatus === 'saved' ? <CheckIcon className="h-6 w-6 text-[#ABF62D]" /> : <SaveIcon className="h-6 w-6" />}
+            </button>
+             <button
+                onClick={() => setIsHistoryOpen(true)}
+                aria-label="View Saved Chats"
+                className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-[#0D0D0D] focus:ring-[#ABF62D] transition-all"
+            >
+                <HistoryIcon className="h-6 w-6" />
+            </button>
+            <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
+          </div>
         </header>
         
         <PersonalitySelector
@@ -153,15 +219,16 @@ const App: React.FC = () => {
             id="chat-panel"
             role="tabpanel"
             aria-labelledby={activeTabId}
-            className="w-full flex-1 flex flex-col my-6 bg-gray-50 dark:bg-black rounded-xl border border-gray-200 dark:border-zinc-800 shadow-lg dark:shadow-2xl dark:shadow-zinc-900/50 overflow-hidden"
+            className="w-full flex-1 flex flex-col my-4 sm:my-6 bg-gray-50 dark:bg-black rounded-xl border border-gray-200 dark:border-zinc-800 shadow-lg dark:shadow-2xl dark:shadow-zinc-900/50 overflow-hidden"
         >
           <ChatInterface 
             messages={messages} 
             isLoading={isLoading}
             onViewImage={setViewingImage}
             onSuggestionClick={handleSuggestionClick}
+            assistantIcon={activePersonalityData.icon}
           />
-          {messages.length === 1 && !isLoading && (
+          {isPristine && !isLoading && (
             <SuggestionPrompts 
               suggestions={activePersonalityData.suggestions}
               onSuggestionClick={handleSuggestionClick}
@@ -174,6 +241,13 @@ const App: React.FC = () => {
         Designed by <a href="https://www.linkedin.com/in/rahul-chauhan-a022ab79/" target="_blank" rel="noopener noreferrer" className="underline hover:text-[#69961a] dark:hover:text-[#ABF62D] transition-colors">Rahul Chauhan</a>
       </footer>
       <ImageModal src={viewingImage} onClose={() => setViewingImage(null)} />
+      <ChatHistoryModal
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        savedChats={savedChats}
+        onLoadChat={handleLoadChat}
+        onDeleteChat={handleDeleteChat}
+      />
     </div>
   );
 };

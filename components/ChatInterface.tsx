@@ -1,17 +1,17 @@
+
 import React, { useEffect, useRef } from 'react';
 import type { ChatMessage } from '../types';
 import Message from './Message';
-import { PERSONALITIES } from '../constants';
 
 interface ChatInterfaceProps {
   messages: ChatMessage[];
   isLoading: boolean;
   onViewImage: (src: string) => void;
   onSuggestionClick: (suggestion: string) => void;
+  assistantIcon: React.ComponentType<{ className?: string }>;
 }
 
-const LoadingIndicator: React.FC = () => {
-    const AssistantIcon = PERSONALITIES[0].icon;
+const LoadingIndicator: React.FC<{ assistantIcon: React.ComponentType<{ className?: string }> }> = ({ assistantIcon: AssistantIcon }) => {
     return (
         <div className="flex items-end gap-3 justify-start">
              <AssistantIcon className="h-8 w-8 text-gray-500 dark:text-gray-600 flex-shrink-0" />
@@ -25,7 +25,7 @@ const LoadingIndicator: React.FC = () => {
 };
 
 
-const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, isLoading, onViewImage, onSuggestionClick }) => {
+const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, isLoading, onViewImage, onSuggestionClick, assistantIcon }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -41,9 +41,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, isLoading, onVi
         if (msg.role === 'assistant' && msg.content === '...') {
           return null;
         }
-        return <Message key={msg.id} message={msg} onViewImage={onViewImage} onSuggestionClick={onSuggestionClick} isLoading={isLoading} />;
+        return <Message key={msg.id} message={msg} onViewImage={onViewImage} onSuggestionClick={onSuggestionClick} isLoading={isLoading} assistantIcon={assistantIcon} />;
       })}
-      {isLoading && <LoadingIndicator />}
+      {isLoading && <LoadingIndicator assistantIcon={assistantIcon} />}
     </div>
   );
 };

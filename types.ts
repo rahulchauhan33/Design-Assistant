@@ -1,4 +1,3 @@
-
 export enum Personality {
   UX_COACH = 'UX_COACH',
   PRODUCT_PM = 'PRODUCT_PM',
@@ -21,6 +20,14 @@ export interface PersonalityData {
   suggestions: string[];
 }
 
+export interface SavedChat {
+  id: string;
+  timestamp: number;
+  messages: ChatMessage[];
+  personality: Personality;
+}
+
+// Fix: Add and export the TourStep interface to resolve an import error in OnboardingTour.tsx.
 export interface TourStep {
   targetId: string;
   title: string;
