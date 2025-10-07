@@ -1,4 +1,5 @@
 
+
 import React, { useRef, useEffect } from 'react';
 import type { SavedChat } from '../types';
 import { PERSONALITIES } from '../constants';
@@ -80,7 +81,7 @@ const ChatHistoryModal: React.FC<ChatHistoryModalProps> = ({ isOpen, onClose, sa
 
         <div className="flex-1 overflow-y-auto p-4">
           {savedChats.length === 0 ? (
-            <div className="flex items-center justify-center h-full text-zinc-500">
+            <div className="flex items-center justify-center h-full text-zinc-400">
               <p>You have no saved conversations.</p>
             </div>
           ) : (
@@ -93,11 +94,11 @@ const ChatHistoryModal: React.FC<ChatHistoryModalProps> = ({ isOpen, onClose, sa
                   <li key={chat.id} className="group bg-[#1A1A1A] p-4 rounded-lg border border-zinc-800 hover:border-zinc-700 transition-all">
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
                       <div className='flex-1 min-w-0'>
-                        {Icon && <personality.icon className="h-6 w-6 mb-2 text-zinc-500" />}
+                        {Icon && <personality.icon className="h-6 w-6 mb-2 text-zinc-400" />}
                         <p className="text-sm font-semibold text-gray-200 truncate pr-2" title={getFirstUserMessage(chat.messages)}>
                           {getFirstUserMessage(chat.messages)}
                         </p>
-                        <p className="text-xs text-zinc-500 mt-1">
+                        <p className="text-xs text-zinc-400 mt-1">
                           Saved on {new Date(chat.timestamp).toLocaleString()}
                         </p>
                       </div>
@@ -111,7 +112,7 @@ const ChatHistoryModal: React.FC<ChatHistoryModalProps> = ({ isOpen, onClose, sa
                         <button
                           onClick={() => handleDelete(chat.id)}
                           aria-label="Delete chat"
-                          className="p-2 rounded-md text-zinc-400 hover:bg-red-500 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#1A1A1A] focus:ring-red-500"
+                          className="p-2 rounded-md text-zinc-300 hover:bg-red-500 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#1A1A1A] focus:ring-red-500"
                         >
                           <TrashIcon className="h-5 w-5" />
                         </button>

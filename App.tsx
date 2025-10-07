@@ -1,16 +1,18 @@
 
+
+
 import React, { useState, useCallback, useEffect } from 'react';
 import type { ChatMessage, PersonalityData, SavedChat } from './types';
 import { Personality } from './types';
 import { PERSONALITIES } from './constants';
-import { getDesignFeedback } from './services/geminiService';
+import { getDesignFeedback, generateImage } from './services/geminiService';
 import PersonalitySelector from './components/PersonalitySelector';
 import ChatInterface from './components/ChatInterface';
 import InputBar from './components/InputBar';
 import ThemeToggle from './components/ThemeToggle';
 import ImageModal from './components/ImageModal';
 import SuggestionPrompts from './components/SuggestionPrompts';
-import { PlusIcon } from './components/icons/PlusIcon';
+import { TrashIcon } from './components/icons/TrashIcon';
 import { SaveIcon } from './components/icons/SaveIcon';
 import { HistoryIcon } from './components/icons/HistoryIcon';
 import { CheckIcon } from './components/icons/CheckIcon';
@@ -107,13 +109,28 @@ const App: React.FC = () => {
 
 
     try {
-      const response = await getDesignFeedback(prompt, image, activePersonalityData);
-      const assistantMessage: ChatMessage = {
-        id: assistantMessageId,
-        role: 'assistant',
-        content: response,
-      };
-      setMessages(prev => prev.map(msg => msg.id === assistantMessageId ? assistantMessage : msg));
+       if (activePersonality === Personality.IMAGE_GEN) {
+            if (!prompt) {
+                throw new Error("Please provide a text description for the image you want to generate.");
+            }
+            const base64ImageData = await generateImage(prompt);
+            const assistantMessage: ChatMessage = {
+                id: assistantMessageId,
+                role: 'assistant',
+                content: `Here's the image generated for: "${prompt}"`,
+                image: `data:image/png;base64,${base64ImageData}`
+            };
+            setMessages(prev => prev.map(msg => msg.id === assistantMessageId ? assistantMessage : msg));
+
+        } else {
+            const response = await getDesignFeedback(prompt, image, activePersonalityData);
+            const assistantMessage: ChatMessage = {
+                id: assistantMessageId,
+                role: 'assistant',
+                content: response,
+            };
+            setMessages(prev => prev.map(msg => msg.id === assistantMessageId ? assistantMessage : msg));
+        }
     } catch (e) {
       console.error('Error during message handling:', e);
       const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
@@ -126,7 +143,7 @@ const App: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [activePersonalityData, messages]);
+  }, [activePersonality, activePersonalityData, messages]);
   
   const handleSuggestionClick = (suggestion: string) => {
     const inputBar = document.getElementById('prompt-input') as HTMLInputElement | null;
@@ -138,7 +155,7 @@ const App: React.FC = () => {
     handleSendMessage(suggestion, null);
   };
 
-  const handleNewChat = () => {
+  const handleClearChat = () => {
     setMessages([INITIAL_MESSAGE]);
   }
 
@@ -172,36 +189,37 @@ const App: React.FC = () => {
   const isPristine = messages.length <= 1 && messages[0].id === 'init';
 
   return (
-    <div className="flex flex-col h-screen bg-white dark:bg-[#0D0D0D] text-gray-800 dark:text-gray-200 font-sans antialiased">
-       <main className="flex-1 flex flex-col items-center p-2 sm:p-4 w-full max-w-4xl mx-auto">
+    <div className="h-dvh flex flex-col bg-white dark:bg-[#0D0D0D] text-gray-800 dark:text-gray-100 font-sans antialiased">
+       <main className="flex-1 flex flex-col items-center p-2 sm:p-4 w-full max-w-4xl mx-auto min-h-0">
         <header className="w-full py-4 sm:py-8 flex flex-col gap-4 sm:flex-row sm:justify-between items-center">
           <div className="text-center sm:text-left">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
               Design Assistant
             </h1>
-            <p className="text-gray-600 dark:text-gray-500">Instant feedback from your AI design team.</p>
+            <p className="text-gray-600 dark:text-gray-400">Instant feedback from your AI design team.</p>
           </div>
            <div className="flex items-center gap-2">
             <button
-                onClick={handleNewChat}
+                onClick={handleClearChat}
                 disabled={isPristine}
-                aria-label="New Chat"
-                className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-[#0D0D0D] focus:ring-[#ABF62D] transition-all"
+                aria-label="Clear Chat"
+                title="Clear Chat"
+                className="p-2 rounded-full text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-[#0D0D0D] focus:ring-[#ABF62D] transition-all"
             >
-                <PlusIcon className="h-6 w-6" />
+                <TrashIcon className="h-6 w-6" />
             </button>
             <button
                 onClick={handleSaveChat}
                 disabled={isPristine}
                 aria-label="Save Chat"
-                className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-[#0D0D0D] focus:ring-[#ABF62D] transition-all"
+                className="p-2 rounded-full text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-[#0D0D0D] focus:ring-[#ABF62D] transition-all"
             >
                 {saveStatus === 'saved' ? <CheckIcon className="h-6 w-6 text-[#ABF62D]" /> : <SaveIcon className="h-6 w-6" />}
             </button>
              <button
                 onClick={() => setIsHistoryOpen(true)}
                 aria-label="View Saved Chats"
-                className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-[#0D0D0D] focus:ring-[#ABF62D] transition-all"
+                className="p-2 rounded-full text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-[#0D0D0D] focus:ring-[#ABF62D] transition-all"
             >
                 <HistoryIcon className="h-6 w-6" />
             </button>
@@ -234,10 +252,10 @@ const App: React.FC = () => {
               onSuggestionClick={handleSuggestionClick}
             />
           )}
-          <InputBar onSendMessage={handleSendMessage} isLoading={isLoading} />
+          <InputBar onSendMessage={handleSendMessage} isLoading={isLoading} activePersonality={activePersonality} />
         </div>
       </main>
-      <footer className="text-center p-4 text-sm text-zinc-600 dark:text-zinc-500">
+      <footer className="text-center p-4 text-sm text-zinc-600 dark:text-zinc-400">
         Designed by <a href="https://www.linkedin.com/in/rahul-chauhan-a022ab79/" target="_blank" rel="noopener noreferrer" className="underline hover:text-[#69961a] dark:hover:text-[#ABF62D] transition-colors">Rahul Chauhan</a>
       </footer>
       <ImageModal src={viewingImage} onClose={() => setViewingImage(null)} />

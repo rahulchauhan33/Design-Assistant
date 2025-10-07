@@ -4,6 +4,7 @@ import { Personality } from './types';
 import { UxEagleIcon } from './components/icons/UxEagleIcon';
 import { PmOwlIcon } from './components/icons/PmOwlIcon';
 import { EngBearIcon } from './components/icons/EngBearIcon';
+import { MagicIcon } from './components/icons/MagicIcon';
 
 export const PERSONALITIES: PersonalityData[] = [
   {
@@ -70,6 +71,18 @@ After your analysis, always suggest 2-3 follow-up questions to guide the convers
         'How complex would this be to build in React?',
         'Are there any performance concerns with this design?',
         'Suggest a component breakdown for this screen.',
+    ]
+  },
+  {
+    id: Personality.IMAGE_GEN,
+    name: 'Image Gen',
+    description: 'Generate design concepts and elements from text.',
+    icon: MagicIcon,
+    systemInstruction: `You are a creative assistant that generates images based on user prompts.`,
+    suggestions: [
+      'Generate a minimalist logo concept for a coffee shop.',
+      'Create a set of 3 icons for a weather app.',
+      'Visualize a hero section for a luxury travel website.',
     ]
   }
 ];

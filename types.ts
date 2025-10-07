@@ -1,7 +1,10 @@
+import type { ComponentType } from 'react';
+
 export enum Personality {
   UX_COACH = 'UX_COACH',
   PRODUCT_PM = 'PRODUCT_PM',
   ENGINEER = 'ENGINEER',
+  IMAGE_GEN = 'IMAGE_GEN',
 }
 
 export interface ChatMessage {
@@ -16,7 +19,8 @@ export interface PersonalityData {
   name: string;
   description: string;
   systemInstruction: string;
-  icon: React.ComponentType<{ className?: string }>;
+  // Fix: Use ComponentType from react to resolve namespace error.
+  icon: ComponentType<{ className?: string }>;
   suggestions: string[];
 }
 

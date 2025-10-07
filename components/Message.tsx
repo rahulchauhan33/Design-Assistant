@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -47,11 +48,11 @@ const Message: React.FC<MessageProps> = ({ message, onViewImage, onSuggestionCli
   return (
     <div className={`group flex items-end gap-3 ${containerClasses}`}>
       {!isUser && !isSystem && <IconComponent className={iconClasses} />}
-      <div className={`relative rounded-lg p-4 max-w-2xl text-gray-800 dark:text-gray-300 whitespace-pre-wrap font-medium ${bubbleClasses}`}>
+      <div className={`relative rounded-lg p-4 max-w-2xl text-gray-800 dark:text-gray-200 whitespace-pre-wrap font-medium ${bubbleClasses}`}>
         {isAssistant && content && content !== '...' && (
           <button
             onClick={handleCopy}
-            className="absolute top-2 right-2 p-1 rounded-md text-gray-500 dark:text-gray-400 bg-white/50 dark:bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-[#ABF62D]"
+            className="absolute top-2 right-2 p-1 rounded-md text-gray-500 dark:text-gray-300 bg-white/50 dark:bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-[#ABF62D]"
             aria-label={isCopied ? "Copied!" : "Copy message"}
           >
             {isCopied ? (
@@ -98,7 +99,7 @@ const Message: React.FC<MessageProps> = ({ message, onViewImage, onSuggestionCli
               </div>
             ),
             thead: ({node, ...props}) => <thead className="bg-gray-100 dark:bg-zinc-900" {...props} />,
-            th: ({node, ...props}) => <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider" {...props} />,
+            th: ({node, ...props}) => <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider" {...props} />,
             tbody: ({node, ...props}) => <tbody className="divide-y divide-gray-200 dark:divide-zinc-800" {...props} />,
             td: ({node, ...props}) => <td className="px-4 py-3" {...props} />,
             del: ({node, ...props}) => <del className="text-gray-500" {...props} />,
