@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { SpinnerIcon } from './icons/SpinnerIcon';
 import type { Personality } from '../types';
@@ -68,7 +69,7 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, isLoading, activePer
     };
 
   return (
-    <div className="p-4 bg-white/80 dark:bg-black/50 backdrop-blur-sm border-t border-gray-200 dark:border-zinc-800">
+    <div className="p-2 sm:p-4 bg-white/80 dark:bg-black/50 backdrop-blur-sm border-t border-gray-200 dark:border-zinc-800">
       <div className="max-w-4xl mx-auto">
         {image && !isImageGenMode && (
           <div className="mb-3 inline-flex items-start gap-2 animate-fadeIn">

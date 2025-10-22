@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useState, useCallback, useEffect } from 'react';
 import type { ChatMessage, PersonalityData, SavedChat } from './types';
 import { Personality } from './types';
@@ -190,7 +191,7 @@ const App: React.FC = () => {
 
   return (
     <div className="h-dvh flex flex-col bg-white dark:bg-[#0D0D0D] text-gray-800 dark:text-gray-100 font-sans antialiased">
-       <main className="flex-1 flex flex-col items-center p-2 sm:p-4 w-full max-w-4xl mx-auto min-h-0">
+       <main className="flex-1 flex flex-col items-center p-2 pb-0 sm:p-4 w-full max-w-4xl mx-auto min-h-0">
         <header className="w-full py-4 sm:py-8 flex flex-col gap-4 sm:flex-row sm:justify-between items-center">
           <div className="text-center sm:text-left">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
@@ -237,7 +238,7 @@ const App: React.FC = () => {
             id="chat-panel"
             role="tabpanel"
             aria-labelledby={activeTabId}
-            className="w-full flex-1 flex flex-col my-4 sm:my-6 bg-gray-50 dark:bg-black rounded-xl border border-gray-200 dark:border-zinc-800 shadow-lg dark:shadow-2xl dark:shadow-zinc-900/50 overflow-hidden"
+            className="w-full flex-1 flex flex-col my-2 sm:my-6 bg-gray-50 dark:bg-black rounded-xl border border-gray-200 dark:border-zinc-800 shadow-lg dark:shadow-2xl dark:shadow-zinc-900/50 overflow-hidden"
         >
           <ChatInterface 
             messages={messages} 
@@ -255,7 +256,7 @@ const App: React.FC = () => {
           <InputBar onSendMessage={handleSendMessage} isLoading={isLoading} activePersonality={activePersonality} />
         </div>
       </main>
-      <footer className="text-center p-4 text-sm text-zinc-600 dark:text-zinc-400">
+      <footer className="text-center px-4 pb-4 pt-1 sm:p-4 text-sm text-zinc-600 dark:text-zinc-400">
         Designed by <a href="https://www.linkedin.com/in/rahul-chauhan-a022ab79/" target="_blank" rel="noopener noreferrer" className="underline hover:text-[#69961a] dark:hover:text-[#ABF62D] transition-colors">Rahul Chauhan</a>
       </footer>
       <ImageModal src={viewingImage} onClose={() => setViewingImage(null)} />
