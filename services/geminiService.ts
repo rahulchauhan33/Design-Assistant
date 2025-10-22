@@ -1,11 +1,12 @@
 import { GoogleGenAI, HarmCategory, HarmBlockThreshold } from "@google/genai";
 import type { PersonalityData } from '../types';
 
-if (!process.env.API_KEY) {
-  throw new Error("API_KEY environment variable not set");
-}
-
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const getAiInstance = () => {
+  if (!process.env.API_KEY) {
+    throw new Error("API_KEY environment variable not set. Please add it to your Vercel project environment variables and redeploy.");
+  }
+  return new GoogleGenAI({ apiKey: process.env.API_KEY });
+};
 
 export async function getDesignFeedback(
   prompt: string,
@@ -13,6 +14,7 @@ export async function getDesignFeedback(
   personalityData: PersonalityData
 ): Promise<string> {
   
+  const ai = getAiInstance();
   const model = 'gemini-2.5-flash';
   const parts: ({ text: string } | { inlineData: { mimeType: string; data: string } })[] = [];
 
@@ -82,6 +84,7 @@ export async function getDesignFeedback(
 
 
 export async function generateImage(prompt: string): Promise<string> {
+  const ai = getAiInstance();
   if (!prompt) {
     throw new Error("A text prompt is required to generate an image.");
   }
